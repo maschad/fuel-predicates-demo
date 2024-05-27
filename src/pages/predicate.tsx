@@ -21,10 +21,12 @@ export default function PredicateExample() {
 
   const [pin, setPin] = useState<string>();
 
+  const [configurable, setConfigurable] = useState<{ PIN: BN }>();
+
   useAsync(async () => {
     if (wallet) {
       baseAssetId = wallet.provider.getBaseAssetId();
-      const predicate = TestPredicateAbi__factory.createInstance(wallet.provider);
+      const predicate = TestPredicateAbi__factory.createInstance(wallet.provider, [bn(pin)], configurable);
       setPredicate(predicate);
       setPredicateBalance(await predicate.getBalance());
     }
@@ -59,7 +61,7 @@ export default function PredicateExample() {
         return toast.error("Wallet not loaded");
       }
 
-      const reInitializePredicate = TestPredicateAbi__factory.createInstance(wallet.provider, [bn(pin)]);
+      const reInitializePredicate = TestPredicateAbi__factory.createInstance(wallet.provider, [bn(pin)], configurable);
 
       if (!reInitializePredicate) {
         return toast.error("Failed to initialize predicate");
@@ -104,9 +106,10 @@ export default function PredicateExample() {
       return toast.error("Please enter a pin");
     }
 
-    const configurable = { PIN: bn(pin) };
+    setConfigurable({ PIN: bn(pin) });
+
     // instantiate predicate with configurable constants
-    const reInitializePredicate = TestPredicateAbi__factory.createInstance(wallet.provider, [bn(configurable.PIN)], configurable);
+    const reInitializePredicate = TestPredicateAbi__factory.createInstance(wallet.provider, [bn(pin)], { PIN: bn(pin) });
 
     if (!reInitializePredicate) {
       return toast.error("Failed to initialize predicate");
